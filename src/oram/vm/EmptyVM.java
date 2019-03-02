@@ -8,6 +8,9 @@ public class EmptyVM implements VirtualMachine {
     public long compute() { return 0; }
 
     @Override
+    public void jump(String lbl) { }
+
+    @Override
     public void jump(long loc) { }
 
     @Override

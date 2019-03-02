@@ -16,6 +16,12 @@ public interface VirtualMachine {
     long compute();
 
     /**
+     * Jump to the specified label.
+     * @param lbl
+     */
+    void jump(String lbl);
+
+    /**
      * Jumps to the specified memory address.
      * @param loc
      */

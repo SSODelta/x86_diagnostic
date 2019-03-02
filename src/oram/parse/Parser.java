@@ -1,5 +1,6 @@
 package oram.parse;
 
+import oram.vm.ConditionCode;
 import oram.vm.Instruction;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class Parser {
     }
 
     static Instruction[] parse(String data){
+        System.out.println(data);
         String[] lines = data.replace("\r","")
                              .split("\n");
         List<Instruction> instrs = new ArrayList<>();
@@ -51,6 +53,12 @@ public class Parser {
             case "movq":
             case "movl":
                 return Instruction.mov(lp.op(1), lp.op(2));
+            case "cmpl":
+                return Instruction.cmp(lp.op(1), lp.op(2));
+            case "jne":
+                return Instruction.jmp(lp.lbl(1), ConditionCode.not_equal);
+            case "jmp":
+                return Instruction.jmp(lp.lbl(1));
         }
         throw new IllegalStateException("invalid instruction: "+lp.hd());
     }

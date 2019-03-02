@@ -161,6 +161,12 @@ public interface Instruction {
     static Instruction jmp(Operand location, ConditionCode cc){
         return vm -> {if(vm.is(cc))vm.jump(location.get(vm));};
     }
+    static Instruction jmp(String lbl){
+        return jmp(lbl, ConditionCode.always);
+    }
+    static Instruction jmp(String lbl, ConditionCode cc){
+        return vm -> {if(vm.is(cc))vm.jump(lbl);};
+    }
 
     /// PROCEDURE CALL INSTRUCTION ///
     static Instruction call(Operand loc){

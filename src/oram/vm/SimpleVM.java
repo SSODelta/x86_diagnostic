@@ -21,6 +21,7 @@ public class SimpleVM implements VirtualMachine {
     private Map<Long, Long> heap;
     private Map<Register, Long> registers;
     private Map<Flag, Boolean> flags;
+    private Map<String, Integer> labels;
 
     public SimpleVM(Instruction... instructions){
         mem = new EmptyVM();
@@ -28,6 +29,13 @@ public class SimpleVM implements VirtualMachine {
         heap = new HashMap<>();
         registers = new HashMap<>();
         flags = new HashMap<>();
+        labels = new HashMap<>();
+        int i = 0;
+        for(Instruction inst : instructions){
+            if(inst instanceof Instruction.Label)
+                labels.put(((Instruction.Label) inst).label(), i);
+            i+=1;
+        }
         this.instructions = instructions;
     }
 
@@ -35,6 +43,12 @@ public class SimpleVM implements VirtualMachine {
     public long compute() {
         Arrays.stream(instructions).forEach(i -> i.apply(this));
         return load(Register.RAX);
+    }
+
+    @Override
+    public void jump(String lbl) {
+        if(!labels.containsKey(lbl))throw new IllegalStateException("no such label: "+lbl);
+        jump(labels.get(lbl));
     }
 
     @Override
@@ -51,13 +65,11 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public void condition(long value) {
-        System.out.println("recomputing flags");
 
     }
 
     @Override
     public boolean flag(Flag f) {
-        System.out.println("returning flag for "+f);
         return flags.getOrDefault(f, mem.flag(f));
     }
 

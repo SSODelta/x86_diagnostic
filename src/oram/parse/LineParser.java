@@ -36,4 +36,8 @@ class LineParser {
     public String toString(){
         return Arrays.stream(args).reduce("[", (s1, s2)->{if(s1.length()<=1) return s1+s2; else return s1+"], ["+s2;})+"]";
     }
+
+    public String lbl(int i) {
+        return args[i];
+    }
 }

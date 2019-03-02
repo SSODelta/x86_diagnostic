@@ -6,16 +6,13 @@ import oram.vm.SimpleVM;
 import oram.vm.VirtualMachine;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Instruction[] instrs =
-                Parser.compile("#include <stdio.h>\n" +
-                "int main()\n" +
-                "{\n" +
-                "   int x = (7+8)*13;\n" +
-                "   return x;\n" +
-                "}");
+                Parser.compile(new String(Files.readAllBytes(Paths.get(args[0]))));
 
         VirtualMachine vm = new SimpleVM(instrs);
         System.out.println("Result: "+vm.compute());
