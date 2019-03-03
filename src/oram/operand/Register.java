@@ -7,16 +7,23 @@ public enum Register implements Operand {
     RSI, RDI, RSP, RBP,
     R8,  R9,  R10, R11,
     R12, R13, R14, R15,
-    RIP;
+    RIP, NONE;
+
+    public String toString(){
+        return "%"+super.toString().toLowerCase();
+    }
 
     static Register get(String register){
+        register = register.replace("(","").replace(")","");
         if(!register.startsWith("%"))
             throw new IllegalArgumentException("not a register: "+register);
         switch(register.substring(1).toLowerCase()){
             case "rip":
                 return RIP;
             case "rax":
+            case "eax":
                 return RAX;
+            case "ecx":
             case "rcx":
                 return RCX;
             case "rdx":

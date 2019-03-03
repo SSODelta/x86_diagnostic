@@ -3,15 +3,12 @@ package oram.vm;
 import oram.operand.Addressable;
 import oram.operand.Operand;
 import oram.operand.Register;
+import oram.parse.LineParser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class SimpleVM implements VirtualMachine {
 
-    private long next_instruction = 0;
     private Instruction[] instructions;
 
     private boolean verbose = false;
@@ -22,6 +19,8 @@ public class SimpleVM implements VirtualMachine {
     private Map<Register, Long> registers;
     private Map<Flag, Boolean> flags;
     private Map<String, Integer> labels;
+    private Map<String, List<Long>> arrays;
+    private int depth = 0;
 
     public SimpleVM(Instruction... instructions){
         mem = new EmptyVM();
@@ -31,9 +30,17 @@ public class SimpleVM implements VirtualMachine {
         flags = new HashMap<>();
         labels = new HashMap<>();
         int i = 0;
+        String arr = null;
         for(Instruction inst : instructions){
-            if(inst instanceof Instruction.Label)
-                labels.put(((Instruction.Label) inst).label(), i);
+            if(inst instanceof Instruction.Label) {
+                String lbl = ((Instruction.Label) inst).label();
+                labels.put(lbl, i);
+                arr = lbl.endsWith("arr")?lbl:null;
+                if(lbl.endsWith("arr"))
+                    arrays.put(lbl, new ArrayList<>());
+            } else if(arr!=null){
+                arrays.get(arr).add(new LineParser());
+            }
             i+=1;
         }
         this.instructions = instructions;
@@ -41,8 +48,14 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public long compute() {
-        Arrays.stream(instructions).forEach(i -> i.apply(this));
-        return load(Register.RAX);
+        while(true) {
+            Instruction next = instructions[(int)load(Register.RIP)];
+            Instruction.inc(Register.RIP).apply(this);
+            if (depth == 0 && next.equals(Instruction.ret)) {
+                return load(Register.RAX);
+            }
+            next.apply(this);
+        }
     }
 
     @Override
@@ -54,18 +67,19 @@ public class SimpleVM implements VirtualMachine {
     @Override
     public void jump(long loc) {
         System.out.println("jumping to "+loc);
-        next_instruction = loc/64;
+        set(Register.RIP, loc);
     }
 
     @Override
     public long load(Register r) {
-        System.out.println("loading register "+r);
+        if(r!=Register.NONE)
+            System.out.println("loading register "+r);
         return registers.getOrDefault(r, mem.load(r));
     }
 
     @Override
     public void condition(long value) {
-
+        flags.put(Flag.ZF, value==0);
     }
 
     @Override

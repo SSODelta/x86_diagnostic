@@ -1,6 +1,5 @@
 package oram.vm;
 
-import oram.operand.AbsoluteReg;
 import oram.operand.Addressable;
 import oram.operand.Operand;
 import oram.operand.Register;
@@ -10,9 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface Instruction {
-    static Instruction ret() {
-        return nop;
-    }
+    static Instruction ret = vm -> {};
 
     void apply(VirtualMachine vm);
 

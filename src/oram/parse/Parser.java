@@ -13,7 +13,7 @@ public class Parser {
 
     public static Instruction[] compile(String cCode) throws IOException, InterruptedException {
         Files.write(Paths.get("code.c"), cCode.getBytes());
-        Runtime.getRuntime().exec("g++ -S code.c -fno-asynchronous-unwind-tables").waitFor();
+        Runtime.getRuntime().exec("g++ -S code.c -fno-asynchronous-unwind-tables -fno-stack-protector").waitFor();
         String asm = new String(Files.readAllBytes(Paths.get("code.s")));
         Files.delete(Paths.get("code.c"));
         Files.delete(Paths.get("code.s"));
@@ -30,7 +30,7 @@ public class Parser {
             if(line.startsWith("\t.macosx"))  continue;
             if(line.startsWith("\t.globl"))    continue;
             if(line.startsWith("\t.p2align")) continue;
-            if(line.startsWith("##"))    continue;
+            if(line.contains("##"))    continue;
             if(line.startsWith("."))    continue;
             if(line.isEmpty())    continue;
             instrs.add(parseLine(line));
@@ -40,7 +40,7 @@ public class Parser {
 
     private static Instruction parseLine(String line) {
         if(!line.startsWith("\t")){
-            return new Instruction.Label(line.substring(0,line.length()-1));
+            return new Instruction.Label(line.substring(0,line.indexOf(":")));
         }
         LineParser lp = new LineParser(line.replace(" ",""));
         switch(lp.hd()){
@@ -49,7 +49,9 @@ public class Parser {
             case "popq":
                 return Instruction.pop(lp.op(1));
             case "retq":
-                return Instruction.ret();
+                return Instruction.ret;
+            case "subq":
+                return Instruction.sub(lp.op(1), lp.op(2));
             case "movq":
             case "movl":
                 return Instruction.mov(lp.op(1), lp.op(2));
