@@ -13,15 +13,24 @@ public class QuadAddress extends Addressable {
         this.r2 = r2;
     }
 
+    public static QuadAddress deref(Register r){
+        return new QuadAddress(0,r,Register.NONE,0);
+    }
+
     @Override
     public long address(VirtualMachine vm) {
+        if(r2 == Register.NONE)
+            return imm+vm.load(r1);
         return imm+vm.load(r1)+vm.load(r2)*s;
     }
 
     public String toString(){
         if(r2 == Register.NONE){
             return (imm!=0?imm:"")+"("+r1+")";
+        } else if(r1 != Register.NONE){
+            return (imm!=0?imm:"")+"("+r1+","+r2+")";
+        } else {
+            return (imm != 0 ? imm : "") + "(," + r2 + ")";
         }
-        return super.toString();
     }
 }

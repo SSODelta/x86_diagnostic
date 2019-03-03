@@ -1,5 +1,6 @@
 package oram.operand;
 
+import oram.vm.DataType;
 import oram.vm.VirtualMachine;
 
 public enum Register implements Operand {
@@ -20,12 +21,16 @@ public enum Register implements Operand {
         switch(register.substring(1).toLowerCase()){
             case "rip":
                 return RIP;
+            case "al":
             case "rax":
             case "eax":
                 return RAX;
+            case "cl":
             case "ecx":
             case "rcx":
                 return RCX;
+            case "dl":
+            case "edx":
             case "rdx":
                 return RDX;
             case "rbx":
@@ -56,11 +61,13 @@ public enum Register implements Operand {
                 return R15;
 
         }
-        return null;
+        throw new IllegalStateException("no such register: "+register);
     }
 
     @Override
-    public long get(VirtualMachine vm) {
+    public long get(VirtualMachine vm, DataType type) {
+        if(type != DataType.QUAD)
+            throw new IllegalStateException("trying to read register "+this+" as "+type+"; expected quad.");
         return vm.load(this);
     }
 }

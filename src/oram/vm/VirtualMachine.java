@@ -13,7 +13,7 @@ public interface VirtualMachine {
         return cc.is(flag(Flag.ZF), flag(Flag.SF), flag(Flag.OF), flag(Flag.CF));
     }
 
-    long compute();
+    String mem();
 
     /**
      * Jump to the specified label.
@@ -52,25 +52,29 @@ public interface VirtualMachine {
      * @param address
      * @return
      */
-    long read(long address);
+    long read(long address, DataType type);
 
     /**
      * Pushes a word unto the stack.
      * @param word
      */
-    void push(long word);
+    void push(long word, DataType type);
 
     /**
      * Set the value of the word located at the given operand.
      * @param o The operand
      * @param value The value
      */
-    void set(Operand o, long value);
+    void set(Operand o, long value, DataType type);
+
+    default void set(Register r, long value){
+        set(r,value,DataType.LONG);
+    }
 
     /**
      * Pops the topmost word of the value.
      * @return
      */
-    long pop();
+    long pop(DataType type);
 
 }

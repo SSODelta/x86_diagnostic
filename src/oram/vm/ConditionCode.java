@@ -3,22 +3,36 @@ package oram.vm;
 
 public interface ConditionCode {
 
-    ConditionCode always = (ZF,SF,OF,CF) -> true;
 
     boolean is(boolean ZF, boolean SF, boolean OF, boolean CF);
 
-    ConditionCode equal             = (ZF,SF,OF,CF) -> ZF,
-                  not_equal         = (ZF,SF,OF,CF) -> !ZF,
-                  negative          = (ZF,SF,OF,CF) -> SF,
-                  nonnegative       = (ZF,SF,OF,CF) -> !SF,
-                  greater_signed    = (ZF,SF,OF,CF) -> !(SF^OF)&!ZF,
-                  geq_signed        = (ZF,SF,OF,CF) -> !(SF^OF),
-                  less_signed       = (ZF,SF,OF,CF) -> SF^OF,
-                  leq_signed        = (ZF,SF,OF,CF) -> (SF^OF)|ZF,
-                  above_unsigned    = (ZF,SF,OF,CF) -> !CF & !ZF,
-                  above_eq_unsigned = (ZF,SF,OF,CF) -> !CF,
-                  below_unsigned    = (ZF,SF,OF,CF) -> CF,
-                  below_eq_unsigned = (ZF,SF,OF,CF) -> CF | ZF;
+    static ConditionCode mk(ConditionCode cc, String lbl){
+        return new ConditionCode() {
+            public boolean is(boolean ZF, boolean SF, boolean OF, boolean CF) {
+                return cc.is(ZF,SF,OF,CF);
+            }
+            public String toString(){
+                return lbl;
+            }
+        };
+    }
 
+    ConditionCode always            = mk((ZF,SF,OF,CF) -> true, "mp"),
+                  equal             = mk((ZF,SF,OF,CF) -> ZF,"e"),
+                  not_equal         = mk((ZF,SF,OF,CF) -> !ZF, "ne"),
+                  negative          = mk((ZF,SF,OF,CF) -> SF, "s"),
+                  nonnegative       = mk((ZF,SF,OF,CF) -> !SF, "ns"),
+                  greater_signed    = mk((ZF,SF,OF,CF) -> !(SF^OF)&!ZF, "g"),
+                  geq_signed        = mk((ZF,SF,OF,CF) -> !(SF^OF), "ge"),
+                  less_signed       = mk((ZF,SF,OF,CF) -> SF^OF, "l"),
+                  leq_signed        = mk((ZF,SF,OF,CF) -> (SF^OF)|ZF, "le"),
+                  above_unsigned    = mk((ZF,SF,OF,CF) -> !CF & !ZF, "a"),
+                  above_eq_unsigned = mk((ZF,SF,OF,CF) -> !CF, "ae"),
+                  below_unsigned    = mk((ZF,SF,OF,CF) -> CF, "b"),
+                  below_eq_unsigned = mk((ZF,SF,OF,CF) -> CF | ZF, "be");
+
+    ConditionCode[] codes = new ConditionCode[]{ always, equal, not_equal, negative, nonnegative,
+                                                 greater_signed, geq_signed, less_signed, leq_signed,
+                                                 above_unsigned, above_eq_unsigned, below_unsigned, below_eq_unsigned };
 
 }

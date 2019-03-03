@@ -4,8 +4,9 @@ import oram.operand.Operand;
 import oram.operand.Register;
 
 public class EmptyVM implements VirtualMachine {
+
     @Override
-    public long compute() { return 0; }
+    public String mem() { return null; }
 
     @Override
     public void jump(String lbl) { }
@@ -23,14 +24,14 @@ public class EmptyVM implements VirtualMachine {
     public boolean flag(Flag f) { return false; }
 
     @Override
-    public long read(long address) { return 0; }
+    public long read(long address, DataType type) { return 0; }
 
     @Override
-    public void push(long word) { }
+    public void push(long word, DataType type) { }
 
     @Override
-    public void set(Operand o, long value) { }
+    public void set(Operand o, long value, DataType type) { }
 
     @Override
-    public long pop() { return 0; }
+    public long pop(DataType type) { return 0; }
 }

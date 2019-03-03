@@ -1,5 +1,6 @@
 package oram.operand;
 
+import oram.vm.DataType;
 import oram.vm.VirtualMachine;
 
 public class Immediate implements Operand {
@@ -10,7 +11,11 @@ public class Immediate implements Operand {
     }
 
     @Override
-    public long get(VirtualMachine vm) {
+    public long get(VirtualMachine vm, DataType type) {
         return word;
+    }
+
+    public String toString(){
+        return "$"+word;
     }
 }

@@ -1,5 +1,6 @@
 package oram.operand;
 
+import oram.vm.DataType;
 import oram.vm.VirtualMachine;
 
 public interface Operand {
@@ -24,6 +25,6 @@ public interface Operand {
         return Register.RAX;
     }
 
-    long get(VirtualMachine vm);
+    long get(VirtualMachine vm, DataType type);
 
 }
