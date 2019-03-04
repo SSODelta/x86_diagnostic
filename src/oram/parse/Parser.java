@@ -30,7 +30,6 @@ public class Parser {
 
             lines.add(line);
         }
-        System.out.println(0.1);
         return lines;
     }
 

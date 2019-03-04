@@ -16,7 +16,6 @@ import java.util.Arrays;
  */
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println(0);
         Instruction[] instrs =
                 Parser.compile(new String(Files.readAllBytes(Paths.get(args[0]))));
 

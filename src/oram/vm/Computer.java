@@ -22,7 +22,6 @@ public class Computer {
     }
     public long execute(Instruction[] instructions){
         int i = 0;
-        System.out.println(1);
         Map<String, Integer> instructionLabels = new HashMap<>();
         SimpleVM.InitialMemory initialMemory = new SimpleVM.InitialMemory();
         for(Instruction inst : instructions){
@@ -40,7 +39,6 @@ public class Computer {
             }
             i+=1;
         }
-        System.out.println(2);
         VirtualMachine vm = vm_gen.apply(instructionLabels, initialMemory);
         if(instructions.length == 0)
             throw new IllegalStateException("no instructions to perform");
