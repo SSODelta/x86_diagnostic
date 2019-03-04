@@ -225,7 +225,7 @@ public interface Instruction {
             return new Instruction.Label(line.substring(0,line.indexOf(":")));
         }
         LineParser lp = new LineParser(line.replace(" ",""));
-        if(lp.hd().startsWith("j") || lp.hd().startsWith("mov")){
+        if(lp.hd().startsWith("j") || lp.hd().startsWith("mov")|| lp.hd().startsWith("set")){
             if(lp.hd().equals("mov")){
                 if(lp.isLabel(1))
                     return Instruction.mov(lp.op(1), lp.op(2), ConditionCode.always, lp.type(1), lp.type(2));
@@ -245,10 +245,13 @@ public interface Instruction {
             }
         }
         switch(lp.hd()){
+            case "set":
+            case "setg":
+                return Instruction.set(lp.op(1), ConditionCode.greater_signed, lp.type(1));
             case "test":
                 return Instruction.test(lp.op(1), lp.op(2), lp.type(1));
-            case "set":
-                return Instruction.set(lp.op(1), ConditionCode.greater_signed, lp.type(1));
+            case "imul":
+                return Instruction.imul(lp.op(1), lp.op(2), lp.type(1));
             case "push":
                 return Instruction.push(lp.op(1), lp.type(1));
             case "pop":
@@ -262,7 +265,6 @@ public interface Instruction {
             case "sub":
                 return Instruction.sub(lp.op(1), lp.op(2), lp.type(1));
             case "cmp":
-                System.out.println("type: "+lp.type(1));
                 return Instruction.cmp(lp.op(1), lp.op(2), lp.type(1));
             case ".long":
                 return Instruction.constant(lp.word(1), DataType.LONG);

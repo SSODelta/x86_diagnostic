@@ -33,18 +33,24 @@ public class LineParser {
         if(!accum.isEmpty())args.add(accum);
         this.args = args.toArray(new String[]{});
         String suff = this.args[0].substring(this.args[0].length()-1);
-        while(DataType.isDataType(suff)){
-            int l = this.args[0].length();
-            this.args[0] = this.args[0].substring(0,l-1);
-            suffixes.add(suff);
-            suff = this.args[0].substring(l-1);
+        if(!this.args[0].startsWith("j")) {
+            while (DataType.isDataType(suff)) {
+                int l = this.args[0].length();
+                this.args[0] = this.args[0].substring(0, l - 1);
+                suffixes.add(suff);
+                suff = this.args[0].substring(l - 1);
+            }
         }
         suffixes.add(null);
         Collections.reverse(suffixes);
     }
     public DataType type(int i){
-        while(i>=suffixes.size())
-            i-=suffixes.size()-1;
+        if(suffixes.size()>1)
+            while(i>=suffixes.size()) {
+                i -= suffixes.size() - 1;
+            }
+        else
+            return DataType.QUAD;
         for(DataType t : DataType.values())
             if(suffixes.get(i).equals(t.toString()))
                 return t;

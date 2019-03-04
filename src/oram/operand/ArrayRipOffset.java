@@ -20,7 +20,7 @@ public class ArrayRipOffset implements Operand {
 
     @Override
     public long get(VirtualMachine vm, DataType type) {
-        System.out.println("reading from "+toString()+": "+Long.toHexString(vm.read(SimpleVM.OFFSET + offset + vm.arrayOffset(array), type)));
-        return vm.read(SimpleVM.OFFSET + offset + vm.arrayOffset(array),type);
+        long addr = SimpleVM.OFFSET + offset + vm.arrayOffset(array);
+        return vm.read(addr,type);
     }
 }

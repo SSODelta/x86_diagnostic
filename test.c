@@ -1,9 +1,7 @@
 int main(){
-  int arr[] = {12, 11, 13, 5, 6};
-  int x = 0;
-  int i = 0;
+  int arr[] = {12, 11, 13, 5, 6, 17, 1};
 
-  if(arr[0]==11) return 7;
+  arr[2] = arr[5]*arr[4];
 
-  return x;
+  return arr[2];
 }

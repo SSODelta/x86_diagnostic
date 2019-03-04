@@ -16,10 +16,13 @@ import java.util.Arrays;
  */
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        System.out.println(0);
         Instruction[] instrs =
                 Parser.compile(new String(Files.readAllBytes(Paths.get(args[0]))));
 
-        System.out.println("INSTRUCTIONS:");
+        System.out.println("--------------------");
+        System.out.println("-- PARSED PROGRAM --");
+        System.out.println("--------------------");
         Arrays.stream(instrs).forEach(System.out::println);
 
         System.out.println("Result: "+ Computer.compute(instrs));

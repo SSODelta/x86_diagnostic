@@ -65,22 +65,29 @@ public class SimpleVM implements VirtualMachine {
 
     public String mem(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Heap:       |");
-        for(long addr = min_heap; addr<max_heap; addr++)
-            sb.append(String.format("%02x", (heap.getOrDefault(addr, (byte)0))) + "|");
+        int k=0;
+        if(min_heap != max_heap) {
+            sb.append("Heap:       ❚");
+            for (long addr = min_heap; addr < max_heap; addr++)
+                sb.append(String.format("%02x", (heap.getOrDefault(addr, (byte) 0))) + (++k % 4 == 0 ? "❚" : "|"));
+            sb.append("\n");
+        }
 
-        sb.append("\nStack:      "+((OFFSET==load(Register.RSP)?OFFSET==load(Register.RBP)?"§":"$":OFFSET==load(Register.RBP)?"#":"|")));
+        k=0;
+        sb.append("Stack:      "+((OFFSET==load(Register.RSP)?OFFSET==load(Register.RBP)?"§":"$":OFFSET==load(Register.RBP)?"#":"❚")));
         for(long i = OFFSET-1; i>=min_stack; i--){
-            sb.append(String.format("%02x", (heap.getOrDefault(i,(byte)0)))+(i==load(Register.RSP)+1?load(Register.RSP)==load(Register.RBP)?"§":"$":i==load(Register.RBP)+1?"#":i==99960?"+":"|"));}
+            k++;
+            sb.append(String.format("%02x", (heap.getOrDefault(i,(byte)0)))+(i==load(Register.RSP)?load(Register.RSP)==load(Register.RBP)?"§":"$":i==load(Register.RBP)?"#":k%4==0?"❚":"|"));}
+
+        k=0;
+        sb.append("\nConstants:  ❚");
+        for(long i=0; i<constant_size; i++)
+            sb.append(String.format("%02x", (heap.getOrDefault(OFFSET+i,(byte)0)))+(++k%4==0?"❚":"|"));
 
         sb.append("\nRegisters:  |");
         for(Register r : Register.values())
             if(registers.containsKey(r))
                 sb.append(r+" = "+registers.get(r)+"|");
-
-        sb.append("\nConstants:  |");
-        for(long i=0; i<constant_size; i++)
-            sb.append(String.format("%02x", (heap.getOrDefault(OFFSET+i,(byte)0)))+"|");
 
         return sb.append("\n").toString();
     }
@@ -105,7 +112,6 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public void condition(long value) {
-        System.out.println("VALUE: "+value);
         flags.put(Flag.ZF, value==0);
     }
 
@@ -119,11 +125,9 @@ public class SimpleVM implements VirtualMachine {
         long x = 0;
         for(int i=0; i<type.bytes(); i++) {
             x *= 256;
-            long addr = address + 8 - type.bytes() + i;
-            System.out.println(address+"\ty="+(heap.getOrDefault(addr,(byte)0) & 0xff));
+            long addr = address + i;
             x += heap.getOrDefault(addr,(byte)0) & 0xff;
         }
-        System.out.println("reading from "+address+": "+x);
         return x;
     }
 
@@ -136,7 +140,6 @@ public class SimpleVM implements VirtualMachine {
     private void put(long addr, byte... bytes){
         for(int i=0; i<bytes.length; i++) {
             long a = addr + i;
-            System.out.println(i+"\tsetting "+(a));
             heap.put(a, bytes[i]);
         }
 
@@ -149,7 +152,6 @@ public class SimpleVM implements VirtualMachine {
     @Override
     public void set(Operand o, long value, DataType type) {
         if(o instanceof Addressable) {
-            System.out.println(type);
             long addr = ((Addressable) o).address(this);
             put(addr, type.arr(value));
             min_heap = Math.min(addr, min_heap);
