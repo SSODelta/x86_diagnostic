@@ -3,9 +3,7 @@ int main(){
   int x = 0;
   int i = 0;
 
-  while(x<13){
-    x = arr[i++];
-  }
+  if(arr[0]==11) return 7;
 
   return x;
 }

@@ -2,7 +2,7 @@ package oram.vm;
 
 public enum DataType {
 
-    BYTE("b",1), WORD("w",2), LONG("l",4), QUAD("q",8);
+    BYTE("b","byte",1), WORD("w","word",2), LONG("l","long",4), QUAD("q","quad",8);
 
     public static boolean isDataType(String str){
         for(DataType t : values())
@@ -12,9 +12,10 @@ public enum DataType {
     }
 
     private int bytes;
-    private String suffix;
-    DataType(String str, int bytes){
+    private String suffix, full;
+    DataType(String str, String full, int bytes){
         suffix = str;
+        this.full = full;
         this.bytes = bytes;
     }
     public byte[] arr(long x){
@@ -25,6 +26,7 @@ public enum DataType {
         }
         return b;
     }
+    public String full() { return full; }
     public int bytes(){
         return bytes;
     }

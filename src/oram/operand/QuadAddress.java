@@ -17,6 +17,10 @@ public class QuadAddress extends Addressable {
         return new QuadAddress(0,r,Register.NONE,0);
     }
 
+    public QuadAddress add(long w){
+        return new QuadAddress(imm+w,r1,r2,s);
+    }
+
     @Override
     public long address(VirtualMachine vm) {
         if(r2 == Register.NONE)

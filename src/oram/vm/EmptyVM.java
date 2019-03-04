@@ -34,4 +34,7 @@ public class EmptyVM implements VirtualMachine {
 
     @Override
     public long pop(DataType type) { return 0; }
+
+    @Override
+    public long arrayOffset(String array) { return 0; }
 }

@@ -3,6 +3,8 @@ package oram.vm;
 import oram.operand.Operand;
 import oram.operand.Register;
 
+import java.util.Map;
+
 /**
  * Interface for a 64-bit virtual machine
  * running on x86-64 machine code.
@@ -67,6 +69,11 @@ public interface VirtualMachine {
      */
     void set(Operand o, long value, DataType type);
 
+    /**
+     * Overrides the other method for registers.
+     * @param r
+     * @param value
+     */
     default void set(Register r, long value){
         set(r,value,DataType.LONG);
     }
@@ -77,4 +84,10 @@ public interface VirtualMachine {
      */
     long pop(DataType type);
 
+    /**
+     * Returns the relative offset of an array.
+     * @param array
+     * @return
+     */
+    long arrayOffset(String array);
 }

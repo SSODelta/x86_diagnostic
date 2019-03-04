@@ -66,8 +66,8 @@ public enum Register implements Operand {
 
     @Override
     public long get(VirtualMachine vm, DataType type) {
-        if(type != DataType.QUAD)
-            throw new IllegalStateException("trying to read register "+this+" as "+type+"; expected quad.");
+//        if(type != DataType.QUAD)
+  //          throw new IllegalStateException("trying to read register "+this+" as "+type+"; expected quad.");
         return vm.load(this);
     }
 }

@@ -31,7 +31,7 @@ public interface Instruction {
                 return s;
             }
             public String toString(){
-                return "\t"+Arrays.stream(lbl).map(o -> pad(o.toString(),12)).reduce("", (s1,s2) -> s1+s2);
+                return "\t"+Arrays.stream(lbl).map(o -> pad(o.toString(),25)).reduce("", (s1,s2) -> s1+s2);
             }
         };
     }
@@ -151,10 +151,10 @@ public interface Instruction {
 
     /// Comparison and Test Instruction///
     static Instruction cmp(Operand s2, Operand s1, DataType type){
-        return mk(vm ->vm.condition(s1.get(vm,type) - s2.get(vm,type)),"cmp",s2,s1);
+        return mk(vm ->vm.condition(s1.get(vm,type) - s2.get(vm,type)),"cmp"+type,s2,s1);
     }
     static Instruction test(Operand s2, Operand s1, DataType type){
-        return mk(vm ->vm.condition(s1.get(vm,type) & s2.get(vm,type)),"test",s2,s1);
+        return mk(vm ->vm.condition(s1.get(vm,type) & s2.get(vm,type)),"test"+type,s2,s1);
     }
 
     /// CONDITIONAL SET INSTRUCTIONS ///
@@ -175,6 +175,19 @@ public interface Instruction {
         public String toString() {return label()+":";}
     }
     static Instruction label(String str) { return new Label(str); }
+
+    class Constant implements Instruction {
+        private long value;
+        private DataType type;
+        public Constant(long value, DataType type) { this.value=value; this.type=type;}
+        public void apply(VirtualMachine vm) { }
+        public long value(){ return value; }
+        public DataType type() { return type; }
+        public String toString() { return "."+type.full() + "\t"+value;}
+    }
+    static Instruction constant(long value, DataType type){
+        return new Constant(value, type);
+    }
 
     /// JUMP INSTRUCTIONS ///
     static Instruction jmp(Operand location){
@@ -249,7 +262,10 @@ public interface Instruction {
             case "sub":
                 return Instruction.sub(lp.op(1), lp.op(2), lp.type(1));
             case "cmp":
+                System.out.println("type: "+lp.type(1));
                 return Instruction.cmp(lp.op(1), lp.op(2), lp.type(1));
+            case ".long":
+                return Instruction.constant(lp.word(1), DataType.LONG);
         }
         throw new IllegalStateException("invalid instruction: "+lp.hd());
     }

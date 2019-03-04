@@ -5,7 +5,7 @@ import oram.parse.Parser;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class Computer {
     public static long compute(String cCode){
@@ -14,23 +14,32 @@ public class Computer {
     public static long compute(Instruction[] instrs){
         return new Computer(SimpleVM::new).execute(instrs);
     }
-    private Function<Map<String, Integer>, VirtualMachine> vm_gen;
+    private BiFunction<Map<String, Integer>, SimpleVM.InitialMemory, VirtualMachine> vm_gen;
     private int depth;
-    public Computer(Function<Map<String, Integer>, VirtualMachine> vm_gen){
+    public Computer(BiFunction<Map<String, Integer>, SimpleVM.InitialMemory, VirtualMachine> vm_gen){
         this.vm_gen =  vm_gen;
         this.depth = 0;
     }
     public long execute(Instruction[] instructions){
         int i = 0;
-        Map<String, Integer> labels = new HashMap<>();
+        Map<String, Integer> instructionLabels = new HashMap<>();
+        SimpleVM.InitialMemory initialMemory = new SimpleVM.InitialMemory();
         for(Instruction inst : instructions){
             if(inst instanceof Instruction.Label) {
                 String lbl = ((Instruction.Label) inst).label();
-                labels.put(lbl, i);
+                if(lbl.endsWith("arr")){
+                    initialMemory.label(lbl);
+                } else {
+                    instructionLabels.put(lbl, i);
+                }
+            }
+            if(inst instanceof Instruction.Constant) {
+                Instruction.Constant c = ((Instruction.Constant) inst);
+                initialMemory.push(c.value(), c.type());
             }
             i+=1;
         }
-        VirtualMachine vm = vm_gen.apply(labels);
+        VirtualMachine vm = vm_gen.apply(instructionLabels, initialMemory);
         if(instructions.length == 0)
             throw new IllegalStateException("no instructions to perform");
         while(true) {

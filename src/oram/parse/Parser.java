@@ -1,6 +1,5 @@
 package oram.parse;
 
-import oram.vm.ConditionCode;
 import oram.vm.Instruction;
 
 import java.io.IOException;
@@ -14,20 +13,8 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-    private class Preprocessed {
-        public List<String> lines;
-        public Map<String, Integer> constantOffsets;
-
-        public Preprocessed(List<String> lines, Map<String, Integer> constantOffsets){
-
-        }
-    }
-
     public static List<String> preprocess(String x86){
-        System.out.println(x86);
         List<String> lines = new ArrayList<>();
-        Map<String, List<Long>> arrs = new HashMap<>();
-        String arr = null;
         for(String line : x86.replace("\r","").split("\n")){
             if(line.startsWith("\t.section")) continue;
             if(line.startsWith("\t.macosx"))  continue;
@@ -37,38 +24,15 @@ public class Parser {
             if(line.contains("##"))
                 line = line.substring(0, line.indexOf("##"));
             if(line.isEmpty())    continue;
-            if(line.startsWith("\t")){
-                if(arr != null){
-                    arrs.get(arr).add(new LineParser(line).word(1));
-                } else lines.add(line);
-            } else {
-                if(line.endsWith("arr:")){
-                    String lbl = line.substring(0,line.indexOf(":"));
-                    arr = lbl;
-                    arrs.put(lbl, new ArrayList<>());
-                } else {
-                    arr = null;
-                    lines.add(line);
-                }
-            }
+
+            line = line.replace("movs","mov");
+            while(line.contains("  "))
+                line=line.replace("  "," ");
+            if(line.equals(" "))continue;
+
+            lines.add(line);
         }
-        List<String> lines2 = new ArrayList<>();
-        for(String line : lines){
-            for(String arrid : arrs.keySet()){
-                if(line.contains(arrid)){
-                    if(line.contains("+")){
-                        int offset = Integer.parseInt(line.substring(0, line.indexOf("(")).substring(line.indexOf("+")+1));
-                        line = line.replace(arrid+"+"+offset, ""+arrs.get(arrid).get(offset/8));
-                    } else {
-                        line = line.replace(arrid, ""+arrs.get(arrid).get(0));
-                    }
-                }
-                if(!line.startsWith("\t") && !line.contains(":"))
-                    continue;
-                lines2.add(line.replace("movs","mov"));
-            }
-        }
-        return lines2;
+        return lines;
     }
 
     public static Instruction[] compile(String cCode) throws IOException, InterruptedException {

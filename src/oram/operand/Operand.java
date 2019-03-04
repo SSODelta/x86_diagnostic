@@ -6,6 +6,18 @@ import oram.vm.VirtualMachine;
 public interface Operand {
 
     static Operand parse(String arg) {
+        if(arg.contains("arr")){
+            if(arg.contains("%rip")){
+                arg = arg.substring(0,arg.indexOf("("));
+                int i = arg.indexOf("+"), offset = 0;
+                String lbl = arg;
+                if(i>-1) {
+                    lbl = arg.substring(0,i);
+                    offset = Integer.parseInt(arg.substring(i + 1));
+                }
+                return new ArrayRipOffset(lbl, offset);
+            } else throw new IllegalStateException("unknown operand: "+arg);
+        }
         if(arg.startsWith("$"))
             return new Immediate(Long.parseLong(arg.substring(1)));
         if(arg.startsWith("%"))
