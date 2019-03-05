@@ -1,6 +1,8 @@
 package oram.vm;
 
 import oram.markov.Markov;
+import oram.markov.MarkovImaging;
+import oram.markov.MarkovInstruction;
 import oram.operand.Operand;
 import oram.operand.Register;
 
@@ -9,27 +11,20 @@ import java.io.IOException;
 public class MarkovComputingVM implements VirtualMachine {
 
     private VirtualMachine vm;
-    private Markov registers, read, set;
-    private Register lastRegister = null;
-    private long lastRead = -1, lastSet = -1;
+    private Markov markov;
+    private MarkovInstruction lastInstruction = null;
 
     public MarkovComputingVM(VirtualMachine vm){
         this.vm = vm;
-        this.registers =  new Markov("regs");
-        this.read = new Markov("read");
-        this.set = new Markov("set");
+        this.markov =  new Markov("markov");
     }
 
     public void printMarkov() throws IOException {
-        System.out.println("\n------------------------"+
-                           "\n--    MARKOV MATRIX   --"+
-                           "\n------------------------");
-        System.out.println("Registers:");
-        registers.print();
-        System.out.println("\nRead:");
-        read.print();
-        System.out.println("\nSet:");
-        set.print();
+        //System.out.println("\n------------------------"+
+                           //"\n--    MARKOV MATRIX   --"+
+                           //"\n------------------------");
+       //markov.print();
+        new MarkovImaging(markov).output("markov.png");
     }
 
     @Override
@@ -49,11 +44,12 @@ public class MarkovComputingVM implements VirtualMachine {
 
     @Override
     public long load(Register r) {
-        if(lastRegister == null){
-            lastRegister = r;
+        MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.READ, r);
+        if(lastInstruction == null){
+            lastInstruction = mi;
         } else {
-            registers.add(lastRegister, r);
-            lastRegister = r;
+            markov.add(lastInstruction, mi);
+            lastInstruction = mi;
         }
         return vm.load(r);
     }
@@ -70,11 +66,12 @@ public class MarkovComputingVM implements VirtualMachine {
 
     @Override
     public long read(long address, DataType type) {
-        if(lastRead==-1){
-            lastRead = address;
+        MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.READ, address);
+        if(lastInstruction==mi){
+            lastInstruction = mi;
         } else {
-            read.add(lastRead, address);
-            lastRead = address;
+            markov.add(lastInstruction, mi);
+            lastInstruction = mi;
         }
         return vm.read(address, type);
     }
@@ -86,11 +83,12 @@ public class MarkovComputingVM implements VirtualMachine {
 
     @Override
     public void set(Operand o, long value, DataType type) {
-        if(lastSet==-1){
-            lastSet = value;
+        MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.SET, o);
+        if(lastInstruction==null){
+            lastInstruction = mi;
         } else {
-            set.add(lastSet, value);
-            lastSet = value;
+            markov.add(lastInstruction, mi);
+            lastInstruction = mi;
         }
         vm.set(o,value,type);
     }

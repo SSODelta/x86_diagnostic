@@ -4,7 +4,7 @@ import oram.vm.DataType;
 import oram.vm.SimpleVM;
 import oram.vm.VirtualMachine;
 
-public abstract class Addressable implements Operand {
+public abstract class Addressable implements Operand{
 
     public abstract long address(VirtualMachine vm);
 
@@ -17,5 +17,9 @@ public abstract class Addressable implements Operand {
             System.out.println(((SimpleVM) vm).heap);
             throw new IllegalStateException("unable to read from address: "+address(vm));
         }
+    }
+
+    public int hashCode(){
+        return toString().hashCode();
     }
 }

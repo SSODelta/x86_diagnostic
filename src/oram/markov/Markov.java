@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Markov {
 
-    private Map<Object, Map<Object, Long>> matrix;
+    private Map<MarkovInstruction, Map<MarkovInstruction, Long>> matrix;
     private String name;
 
     public Markov(String name){
@@ -14,28 +14,26 @@ public class Markov {
         matrix = new HashMap<>();
     }
 
-    public void add(Object a, Object b){
+    public long get(MarkovInstruction a, MarkovInstruction b){
+        return matrix.getOrDefault(a, new HashMap<>()).getOrDefault(b, 0L);
+    }
+
+    public void add(MarkovInstruction a, MarkovInstruction b){
         if(!matrix.containsKey(a))
             matrix.put(a, new HashMap<>());
 
         matrix.get(a).put(b, matrix.get(a).getOrDefault(b,0L)+1);
     }
 
-    public long get(Object a, Object b){
-        if(matrix.containsKey(a))
-            return matrix.get(a).getOrDefault(b, 0L);
-        return 0;
-    }
-
-    public List<Object> objects(){
-        Set<Object> objs = new HashSet<>();
-        for(Object a : matrix.keySet()){
+    public List<MarkovInstruction> objects(){
+        Set<MarkovInstruction> objs = new HashSet<>();
+        for(MarkovInstruction a : matrix.keySet()){
             objs.add(a);
-            for(Object b : matrix.get(a).keySet())
+            for(MarkovInstruction b : matrix.get(a).keySet())
                 objs.add(b);
         }
-        List<Object> o = new ArrayList<>(objs);
-        Collections.sort(o, Comparator.comparing(a -> ((Comparable) a)));
+        List<MarkovInstruction> o = new ArrayList<>(objs);
+        Collections.sort(o, Comparator.comparing(a -> a.toString()));
         return o;
     }
 
@@ -43,12 +41,12 @@ public class Markov {
         System.out.println(this);
         PrintWriter pw = new PrintWriter(name+".csv");
         pw.println("sep=,");
-        List<Object> os = objects();
-        for(Object o : os)
+        List<MarkovInstruction> os = objects();
+        for(MarkovInstruction o : os)
             pw.println(","+o.toString());
 
-        for(Object a : os)
-        for(Object b : os)
+        for(MarkovInstruction a : os)
+        for(MarkovInstruction b : os)
             pw.println(matrix.getOrDefault(a, new HashMap<>()).getOrDefault(b, 0L)+",");
 
         pw.close();
@@ -58,15 +56,15 @@ public class Markov {
     public String toString(){
         StringBuilder sb = new StringBuilder();
 
-        List<Object> objs = objects();
+        List<MarkovInstruction> objs = objects();
 
         sb.append(pad("",14));
-        for(Object a : objs)
+        for(MarkovInstruction a : objs)
             sb.append(pad(a.toString(),14));
         sb.append("\n");
-        for(Object a : objs){
+        for(MarkovInstruction a : objs){
             sb.append(pad(a.toString(), 14));
-            for(Object b : objs){
+            for(MarkovInstruction b : objs){
                 sb.append(pad(matrix.getOrDefault(a, new HashMap<>()).getOrDefault(b, 0L)+"", 14));
             }
             sb.append("\n");
