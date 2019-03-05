@@ -1,9 +1,10 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.operand.*;
-import oram.parse.Parser;
+import x86diagnostic.operand.*;
 
 import java.util.*;
+
+import static x86diagnostic.vm.DataType.QUAD;
 
 /**
  * Very simple memory organization.
@@ -59,8 +60,8 @@ public class SimpleVM implements VirtualMachine {
         this.instructionLabels = instructionLabels;
         initMem.install(this);
 
-        set(Register.RSP, OFFSET);
-        set(Register.RBP, OFFSET);
+        set(Register.Type.RSP, OFFSET);
+        set(Register.Type.RBP, OFFSET);
     }
 
     public String mem(){
@@ -74,10 +75,10 @@ public class SimpleVM implements VirtualMachine {
         }
 
         k=0;
-        sb.append("Stack:      "+((OFFSET==load(Register.RSP)?OFFSET==load(Register.RBP)?"§":"$":OFFSET==load(Register.RBP)?"#":"❚")));
+        sb.append("Stack:      "+((OFFSET==load(Register.Type.RSP)?OFFSET==load(Register.Type.RBP)?"§":"$":OFFSET==load(Register.Type.RBP)?"#":"❚")));
         for(long i = OFFSET-1; i>=min_stack; i--){
             k++;
-            sb.append(String.format("%02x", (heap.getOrDefault(i,(byte)0)))+(i==load(Register.RSP)?load(Register.RSP)==load(Register.RBP)?"§":"$":i==load(Register.RBP)?"#":k%4==0?"❚":"|"));}
+            sb.append(String.format("%02x", (heap.getOrDefault(i,(byte)0)))+(i==load(Register.Type.RSP)?load(Register.Type.RSP)==load(Register.Type.RBP)?"§":"$":i==load(Register.Type.RBP)?"#":k%4==0?"❚":"|"));}
 
         k=0;
         sb.append("\nConstants:  ❚");
@@ -85,9 +86,11 @@ public class SimpleVM implements VirtualMachine {
             sb.append(String.format("%02x", (heap.getOrDefault(OFFSET+i,(byte)0)))+(++k%4==0?"❚":"|"));
 
         sb.append("\nRegisters:  |");
-        for(Register r : Register.values())
-            if(registers.containsKey(r))
-                sb.append(r+" = "+registers.get(r)+"|");
+        for(Register.Type r : Register.Type.values()) {
+            Register reg = new Register(r, QUAD);
+            if (registers.containsKey(reg))
+                sb.append(reg + " = " + registers.get(reg) + "|");
+        }
 
         return sb.append("\n").toString();
     }
@@ -100,12 +103,12 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public void jump(long loc) {
-        set(Register.RIP, loc, DataType.LONG);
+        set(Register.Type.RIP, loc);
     }
 
     @Override
     public long load(Register r) {
-        if(r!=Register.NONE)
+        if(r.type()!=Register.Type.NONE)
             return registers.getOrDefault(r, mem.load(r));
         throw new IllegalStateException("trying to load from invalid register: none");
     }
@@ -113,6 +116,7 @@ public class SimpleVM implements VirtualMachine {
     @Override
     public void condition(long value) {
         flags.put(Flag.ZF, value==0);
+        flags.put(Flag.SF, value<0);
     }
 
     @Override
@@ -133,8 +137,8 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public void push(long word, DataType type) {
-        set(Register.RSP, load(Register.RSP)-type.bytes());
-        set(QuadAddress.deref(Register.RSP), word, type);
+        set(Register.Type.RSP, load(Register.Type.RSP)-type.bytes());
+        set(QuadAddress.deref(Register.Type.RSP), word, type);
     }
 
     private void put(long addr, byte... bytes){
@@ -166,9 +170,9 @@ public class SimpleVM implements VirtualMachine {
 
     @Override
     public long pop(DataType type) {
-        long address = load(Register.RSP);
-        set(Register.RSP, address+type.bytes());
-        return read(address, DataType.QUAD);
+        long address = load(Register.Type.RSP);
+        set(Register.Type.RSP, address+type.bytes());
+        return read(address, QUAD);
     }
 
     @Override

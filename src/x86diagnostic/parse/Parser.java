@@ -1,6 +1,6 @@
-package oram.parse;
+package x86diagnostic.parse;
 
-import oram.vm.Instruction;
+import x86diagnostic.vm.Instruction;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class Parser {
 
     public static List<String> preprocess(String x86){
+        System.out.println(x86);
         List<String> lines = new ArrayList<>();
         for(String line : x86.replace("\r","").split("\n")){
             if(line.startsWith("\t.section")) continue;

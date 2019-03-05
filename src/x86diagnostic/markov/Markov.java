@@ -1,4 +1,4 @@
-package oram.markov;
+package x86diagnostic.markov;
 
 import java.io.IOException;
 import java.io.PrintWriter;

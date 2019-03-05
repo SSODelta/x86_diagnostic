@@ -1,9 +1,7 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.operand.Operand;
-import oram.operand.Register;
-
-import java.util.Map;
+import x86diagnostic.operand.Operand;
+import x86diagnostic.operand.Register;
 
 /**
  * Interface for a 64-bit virtual machine
@@ -35,6 +33,10 @@ public interface VirtualMachine {
      * @return
      */
     long load(Register r);
+
+    default long load(Register.Type r){
+        return load(new Register(r, DataType.QUAD));
+    }
 
     /**
      * Set condition codes according to 'value'.
@@ -74,8 +76,8 @@ public interface VirtualMachine {
      * @param r
      * @param value
      */
-    default void set(Register r, long value){
-        set(r,value,DataType.LONG);
+    default void set(Register.Type r, long value){
+        set(new Register(r, DataType.QUAD),value,DataType.QUAD);
     }
 
     /**

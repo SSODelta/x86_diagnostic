@@ -1,6 +1,8 @@
-package oram.operand;
+package x86diagnostic.operand;
 
-import oram.vm.VirtualMachine;
+import x86diagnostic.vm.VirtualMachine;
+
+import static x86diagnostic.vm.DataType.QUAD;
 
 public class QuadAddress extends Addressable {
 
@@ -15,6 +17,9 @@ public class QuadAddress extends Addressable {
 
     public static QuadAddress deref(Register r){
         return new QuadAddress(0,r,Register.NONE,0);
+    }
+    public static QuadAddress deref(Register.Type type){
+        return deref(new Register(type, QUAD));
     }
 
     public QuadAddress add(long w){

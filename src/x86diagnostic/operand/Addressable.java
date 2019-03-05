@@ -1,8 +1,8 @@
-package oram.operand;
+package x86diagnostic.operand;
 
-import oram.vm.DataType;
-import oram.vm.SimpleVM;
-import oram.vm.VirtualMachine;
+import x86diagnostic.vm.DataType;
+import x86diagnostic.vm.SimpleVM;
+import x86diagnostic.vm.VirtualMachine;
 
 public abstract class Addressable implements Operand{
 
@@ -20,6 +20,11 @@ public abstract class Addressable implements Operand{
     }
 
     public int hashCode(){
-        return toString().hashCode();
+        try {
+            return toString().hashCode();
+        } catch (StackOverflowError e){
+            System.out.println(this.getClass());
+            return 0;
+        }
     }
 }

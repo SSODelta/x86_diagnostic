@@ -1,9 +1,9 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.operand.Addressable;
-import oram.operand.Operand;
-import oram.operand.Register;
-import oram.parse.LineParser;
+import x86diagnostic.operand.Addressable;
+import x86diagnostic.operand.Operand;
+import x86diagnostic.operand.Register;
+import x86diagnostic.parse.LineParser;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
@@ -11,6 +11,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface Instruction {
+    static Instruction inc(Register.Type rip) {
+        return inc(new Register(rip, DataType.QUAD));
+    }
+
     void apply(VirtualMachine vm);
 
     Instruction ret = mk(vm -> {},"ret");
@@ -210,8 +214,8 @@ public interface Instruction {
 
     static Instruction leave(){
         return compose("leave",
-            mov(Register.RSP, Register.RBP),
-            pop(Register.RBP));
+            mov(new Register(Register.Type.RSP, DataType.QUAD), new Register(Register.Type.RBP, DataType.QUAD)),
+            pop(new Register(Register.Type.RBP, DataType.QUAD)));
     }
 
     static Instruction compose(String lbl,Instruction... instrs){
@@ -232,6 +236,9 @@ public interface Instruction {
                 return Instruction.mov(lp.op(1), lp.op(2), ConditionCode.always, lp.type(1), lp.type(2));
             }
             for(ConditionCode cc : ConditionCode.codes){
+                if(lp.hd().equals("set"+cc.toString())){
+                    return Instruction.set(lp.op(1), cc, lp.type(1));
+                }
                 if(lp.hd().equals("j"+cc.toString())){
                     if(lp.isLabel(1))
                         return Instruction.jmp(lp.lbl(1), cc);
@@ -245,9 +252,6 @@ public interface Instruction {
             }
         }
         switch(lp.hd()){
-            case "set":
-            case "setg":
-                return Instruction.set(lp.op(1), ConditionCode.greater_signed, lp.type(1));
             case "test":
                 return Instruction.test(lp.op(1), lp.op(2), lp.type(1));
             case "imul":
@@ -256,6 +260,8 @@ public interface Instruction {
                 return Instruction.push(lp.op(1), lp.type(1));
             case "pop":
                 return Instruction.pop(lp.op(1), lp.type(1));
+            case "lea":
+                return Instruction.lea((Addressable)lp.op(1), lp.op(2), lp.type(1));
             case "ret":
                 return Instruction.ret;
             case "add":
@@ -264,6 +270,8 @@ public interface Instruction {
                 return Instruction.xor(lp.op(1), lp.op(2), lp.type(1));
             case "sub":
                 return Instruction.sub(lp.op(1), lp.op(2), lp.type(1));
+            case "call":
+                return new FunctionCall(lp.lbl(1), lp.lib(1), lp.type(1));
             case "cmp":
                 return Instruction.cmp(lp.op(1), lp.op(2), lp.type(1));
             case ".long":

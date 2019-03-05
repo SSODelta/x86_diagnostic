@@ -1,7 +1,6 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.operand.Register;
-import oram.parse.Parser;
+import x86diagnostic.operand.Register;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -50,11 +49,11 @@ public class Computer {
                            "\n-----------------------\n");
         int k=0;
         while(true) {
-            Instruction next = instructions[(int)vm.load(Register.RIP)];
-            Instruction.inc(Register.RIP).apply(vm);
+            Instruction next = instructions[(int)vm.load(Register.Type.RIP)];
+            Instruction.inc(Register.Type.RIP).apply(vm);
             if (depth == 0 && next.equals(Instruction.ret)) {
                 vm.printMarkov();
-                return vm.load(Register.RAX);
+                return vm.load(Register.Type.RAX);
             }
             System.out.println("\n------------------------"+
                     "\n--   INSTRUCTION #"+(++k)+"  --"+

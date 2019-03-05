@@ -1,7 +1,7 @@
-package oram.operand;
+package x86diagnostic.operand;
 
-import oram.vm.DataType;
-import oram.vm.VirtualMachine;
+import x86diagnostic.vm.DataType;
+import x86diagnostic.vm.VirtualMachine;
 
 public class Immediate implements Operand {
 

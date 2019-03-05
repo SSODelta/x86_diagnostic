@@ -1,10 +1,9 @@
-package oram.markov;
+package x86diagnostic.markov;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class MarkovImaging {
 
         for(int i=0; i<N; i++)
         for(int j=0; j<N; j++){
-            float x = (float)Math.pow(1-(double)markov.get(mis.get(i), mis.get(j)) / M, 6);
+            float x = (float)Math.pow(1-(double)markov.get(mis.get(i), mis.get(j)) / M, 2);
             img.setRGB(i,j,new Color(1.0f, x,x).getRGB());
         }
 

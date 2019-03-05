@@ -1,7 +1,8 @@
-package oram.parse;
+package x86diagnostic.parse;
 
-import oram.operand.Operand;
-import oram.vm.DataType;
+import x86diagnostic.operand.Operand;
+import x86diagnostic.vm.DataType;
+import x86diagnostic.vm.FunctionCall;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +66,14 @@ public class LineParser {
 
     public String toString(){
         return Arrays.stream(args).reduce("[", (s1, s2)->{if(s1.length()<=1) return s1+s2; else return s1+"], ["+s2;})+"]";
+    }
+
+    public FunctionCall.LibraryMethod lib(int i){
+        switch(lbl(i)){
+            case "_memcpy":
+                return FunctionCall.LibraryMethod.MEMCPY;
+        }
+        throw new IllegalStateException("no such library method: "+lbl(i));
     }
 
     public boolean isLabel(int i){

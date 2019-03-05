@@ -1,7 +1,7 @@
-package oram.operand;
+package x86diagnostic.operand;
 
-import oram.vm.DataType;
-import oram.vm.VirtualMachine;
+import x86diagnostic.vm.DataType;
+import x86diagnostic.vm.VirtualMachine;
 
 public interface Operand {
 
@@ -34,7 +34,11 @@ public interface Operand {
                 return new QuadAddress(Long.parseLong(offset), Register.get(reg), Register.NONE, 0);
             }
         }
-        return Register.RAX;
+        int s = arg.indexOf("(");
+        String offset = arg.substring(0,s),
+                reg = arg.substring(s).replace("(","").replace(")","");
+        String[] regs = reg.split(",");
+        return new QuadAddress(Long.parseLong(offset), Register.get(regs[0]), Register.get(regs[1]), Long.parseLong(regs[2]));
     }
 
     long get(VirtualMachine vm, DataType type);

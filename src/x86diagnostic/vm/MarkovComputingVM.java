@@ -1,15 +1,16 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.markov.Markov;
-import oram.markov.MarkovImaging;
-import oram.markov.MarkovInstruction;
-import oram.operand.Operand;
-import oram.operand.Register;
+import x86diagnostic.markov.Markov;
+import x86diagnostic.markov.MarkovImaging;
+import x86diagnostic.markov.MarkovInstruction;
+import x86diagnostic.operand.Operand;
+import x86diagnostic.operand.Register;
 
 import java.io.IOException;
 
 public class MarkovComputingVM implements VirtualMachine {
 
+    private boolean includeRegisters = false;
     private VirtualMachine vm;
     private Markov markov;
     private MarkovInstruction lastInstruction = null;
@@ -44,12 +45,14 @@ public class MarkovComputingVM implements VirtualMachine {
 
     @Override
     public long load(Register r) {
-        MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.READ, r);
-        if(lastInstruction == null){
-            lastInstruction = mi;
-        } else {
-            markov.add(lastInstruction, mi);
-            lastInstruction = mi;
+        if(includeRegisters){
+            MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.READ, r);
+            if(lastInstruction == null){
+                lastInstruction = mi;
+            } else {
+                markov.add(lastInstruction, mi);
+                lastInstruction = mi;
+            }
         }
         return vm.load(r);
     }
@@ -83,12 +86,14 @@ public class MarkovComputingVM implements VirtualMachine {
 
     @Override
     public void set(Operand o, long value, DataType type) {
-        MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.SET, o);
-        if(lastInstruction==null){
-            lastInstruction = mi;
-        } else {
-            markov.add(lastInstruction, mi);
-            lastInstruction = mi;
+        if(!(o instanceof Register) || includeRegisters) {
+            MarkovInstruction mi = new MarkovInstruction(MarkovInstruction.Type.SET, o);
+            if (lastInstruction == null) {
+                lastInstruction = mi;
+            } else {
+                markov.add(lastInstruction, mi);
+                lastInstruction = mi;
+            }
         }
         vm.set(o,value,type);
     }

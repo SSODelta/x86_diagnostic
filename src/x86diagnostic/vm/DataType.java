@@ -1,4 +1,4 @@
-package oram.vm;
+package x86diagnostic.vm;
 
 public enum DataType {
 

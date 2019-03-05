@@ -1,6 +1,6 @@
-package oram.operand;
+package x86diagnostic.operand;
 
-import oram.vm.VirtualMachine;
+import x86diagnostic.vm.VirtualMachine;
 
 public class AbsoluteImm extends Addressable {
 
@@ -12,5 +12,9 @@ public class AbsoluteImm extends Addressable {
     @Override
     public long address(VirtualMachine vm) {
         return imm;
+    }
+
+    public String toString(){
+        return "($"+imm+")";
     }
 }

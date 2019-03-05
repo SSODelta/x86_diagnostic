@@ -1,7 +1,7 @@
-package oram.vm;
+package x86diagnostic.vm;
 
-import oram.operand.Operand;
-import oram.operand.Register;
+import x86diagnostic.operand.Operand;
+import x86diagnostic.operand.Register;
 
 public class EmptyVM implements VirtualMachine {
 

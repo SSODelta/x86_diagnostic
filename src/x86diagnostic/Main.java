@@ -1,10 +1,8 @@
-package oram;
+package x86diagnostic;
 
-import oram.parse.Parser;
-import oram.vm.Computer;
-import oram.vm.Instruction;
-import oram.vm.SimpleVM;
-import oram.vm.VirtualMachine;
+import x86diagnostic.parse.Parser;
+import x86diagnostic.vm.Computer;
+import x86diagnostic.vm.Instruction;
 
 import java.io.IOException;
 import java.nio.file.Files;

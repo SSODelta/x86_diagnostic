@@ -1,6 +1,4 @@
-package oram.markov;
-
-import oram.vm.MarkovComputingVM;
+package x86diagnostic.markov;
 
 public class MarkovInstruction implements Comparable<MarkovInstruction> {
 
@@ -20,6 +18,10 @@ public class MarkovInstruction implements Comparable<MarkovInstruction> {
     public String toString(){ return "read["+o.toString()+"]";}
     public int hashCode(){
         return toString().hashCode();
+    }
+
+    public Object obj(){
+        return o;
     }
 
     public boolean equals(Object o){
