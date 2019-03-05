@@ -85,6 +85,6 @@ public class LineParser {
     }
 
     public long word(int i) {
-        return Long.parseLong(args[i]);
+        return Long.parseLong(args[i].replace("$",""));
     }
 }

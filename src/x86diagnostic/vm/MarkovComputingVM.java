@@ -20,12 +20,12 @@ public class MarkovComputingVM implements VirtualMachine {
         this.markov =  new Markov("markov");
     }
 
-    public void printMarkov() throws IOException {
+    public void printMarkov(String markov_out) throws IOException {
         //System.out.println("\n------------------------"+
                            //"\n--    MARKOV MATRIX   --"+
                            //"\n------------------------");
        //markov.print();
-        new MarkovImaging(markov).output("markov.png");
+        new MarkovImaging(markov).output("markov/"+markov_out+".png");
     }
 
     @Override

@@ -264,6 +264,8 @@ public interface Instruction {
                 return Instruction.lea((Addressable)lp.op(1), lp.op(2), lp.type(1));
             case "ret":
                 return Instruction.ret;
+            case "shl":
+                return Instruction.shl((int)lp.word(1), lp.op(2), lp.type(1));
             case "add":
                 return Instruction.add(lp.op(1), lp.op(2), lp.type(1));
             case "xor":

@@ -1,0 +1,9 @@
+## Basic tests
+simple_var.c;        3;       Increments a variable three times.
+simple_var2.c;       7;       Iterates x->2x+1 three times.
+return_var.c;        47;      Declares an int and returns it.
+simple_branch.c;     58;      Branches on variable equality.
+array_index.c;       39;      Initializes a 4-element integer array and returns its sum.
+array_write.c;       45;      Initializes a 4-element integer array, changes first index and returns its sum.
+array_index_loop.c;  39;      Initializes a 4-element integer array and returns its sum using a loop.
+array_bigint.c;      332557;  Initializes a 3-element integer array and returns its value treated as a base 256 bigint.
