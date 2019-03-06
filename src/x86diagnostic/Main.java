@@ -1,11 +1,15 @@
 package x86diagnostic;
 
+import x86diagnostic.parse.Parser;
 import x86diagnostic.test.TestSuite;
 import x86diagnostic.vm.Computer;
 import x86diagnostic.vm.Configuration;
+import x86diagnostic.vm.DivergeException;
 import x86diagnostic.vm.Instruction;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,6 +97,20 @@ public class Main {
             a.f.accept(c);
     }
 
+    public static void detailed(String filename) throws IOException, InterruptedException, DivergeException {
+        String cCode = new String(Files.readAllBytes(Paths.get(filename)));
+        System.out.println("--------------------------");
+        System.out.println("---    DETAILED TEST   ---");
+        System.out.println("--------------------------");
+        System.out.println("Filename: "+filename+"\nVerbose: true\n");
+        System.out.println("--------------------------");
+        System.out.println("---     RAW C CODE     ---");
+        System.out.println("--------------------------");
+        System.out.println(cCode+"\n");
+        Main.parse(Parser.compile(cCode));
+        Computer.computeTest(filename, true, 10000);
+    }
+
     private static void diag(Configuration c) {
         System.out.println("--------------------------");
         System.out.println("---     DIAGNOSING     ---");
@@ -104,7 +122,7 @@ public class Main {
         }
 
     }
-    private static void parse(Instruction[] instrs) {
+    public static void parse(Instruction[] instrs) {
         System.out.println("--------------------------");
         System.out.println("---  PARSED ASSEMBLER  ---");
         System.out.println("--------------------------");

@@ -10,12 +10,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import static x86diagnostic.test.TestSuite.pad;
+
 public class Computer {
-    public static long computeTest(String file, boolean verbose, long limit) throws IOException, InterruptedException, DivergeException {
-        Computer c = new Computer((f, m) -> new MarkovComputingVM(new SimpleVM(f, m)), verbose);
-        return c.execute(Parser.compile(new String(Files.readAllBytes(Paths.get("tests/" + file)))), file.replace(".c", ""), limit);
+    public static class Computation {
+        public final long x, instrs;
+        public Computation(long x, long instrs){
+            this.x = x;
+            this.instrs = instrs;
+        }
     }
-    public static long compute(Configuration conf) throws IOException {
+
+    public static Computation computeTest(String file, boolean verbose, long limit) throws IOException, InterruptedException, DivergeException {
+        file = file.replace("tests/","");
+        Computer c = new Computer((f, m) -> new MarkovComputingVM(new SimpleVM(f, m)), verbose);
+        return c.execute(Parser.compile(new String(Files.readAllBytes(Paths.get("tests/"+file)))), file.replace(".c", ""), limit);
+    }
+    public static Computation compute(Configuration conf) throws IOException {
         Computer c = new Computer((f,m) -> new MarkovComputingVM(new SimpleVM(f,m)),conf.isVerbose());
          return c.execute(conf.getInstructions(), "markov");
 
@@ -30,14 +41,14 @@ public class Computer {
         this.depth = 0;
         this.verbose = verbose;
     }
-    public long execute(Instruction[] instructions, String markov_out) throws IOException {
+    public Computation execute(Instruction[] instructions, String markov_out) throws IOException {
         try {
             return execute(instructions, markov_out, Long.MAX_VALUE);
         } catch (DivergeException e) {
-            return 0;
+            return new Computation(0, Long.MAX_VALUE);
         }
     }
-    public long execute(Instruction[] instructions, String markov_out, long limit) throws IOException, DivergeException {
+    public Computation execute(Instruction[] instructions, String markov_out, long limit) throws IOException, DivergeException {
         int i = 0;
         Map<String, Integer> instructionLabels = new HashMap<>();
         SimpleVM.InitialMemory initialMemory = new SimpleVM.InitialMemory();
@@ -60,9 +71,9 @@ public class Computer {
         if(instructions.length == 0)
             throw new IllegalStateException("no instructions to perform");
         if(verbose)
-            System.out.println("\n-----------------------"+
-                               "\n-- EXECUTING PROGRAM --"+
-                               "\n-----------------------\n");
+            System.out.println("\n-------------------------------"+
+                               "\n----   EXECUTING PROGRAM   ----"+
+                               "\n-------------------------------\nFile: "+markov_out+".c\n");
         int k=0;
         while(true) {
             if(k++>limit)
@@ -71,13 +82,13 @@ public class Computer {
             Instruction.inc(Register.Type.RIP).apply(vm);
             if (depth == 0 && next.equals(Instruction.ret)) {
                 vm.printMarkov(markov_out);
-                return vm.load(Register.Type.RAX);
+                return new Computation(vm.load(Register.Type.RAX), k);
             }
             if(verbose) {
                 System.out.println(
-                        "\n------------------------" +
-                        "\n--   INSTRUCTION #" + (k) + "  --" +
-                        "\n------------------------");
+                        "\n---------------------------------" +
+                        "\n----     INSTRUCTION #" + pad(""+k,4) + " ----" +
+                        "\n---------------------------------");
                 System.out.println("Executing: " + next);
             }
             next.apply(vm);

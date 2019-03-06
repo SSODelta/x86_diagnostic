@@ -1,5 +1,7 @@
 package x86diagnostic.test;
 
+import x86diagnostic.Main;
+import x86diagnostic.parse.Parser;
 import x86diagnostic.vm.Computer;
 import x86diagnostic.vm.DivergeException;
 
@@ -66,27 +68,38 @@ public class TestSuite {
 
         Map<Test, Status> testResults = new HashMap<>();
         Map<Test, Long>   testValues = new HashMap<>();
+        Map<Test, String>   testIts = new HashMap<>();
+        int passed = 0;
         for (Test t : tests) {
             Status status = Status.REJECT;
-
-            long x = -1;
+            long x = -1, its = 0;
             try {
-                x = Computer.computeTest(t.file, verbose, 10000);
+                Computer.Computation c = Computer.computeTest(t.file, verbose, 10000);
+                x = c.x;
+                its = c.instrs;
                 if (x == t.expected) {
                     status = Status.ACCEPT;
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 status = Status.ERROR;
             } catch (DivergeException e) {
                 status = Status.DIVERGED;
             }
+            if(status == Status.ACCEPT) {
+                passed++;
+                continue;
+            }
             if(status!=Status.ERROR && status!=Status.DIVERGED)
                 testValues.put(t, x);
+
             testResults.put(t, status);
+            testIts.put(t, status==Status.DIVERGED?"-":""+its);
         }
         int i = 0;
-        System.out.println("#     file                      expected     received     status         description");
-        System.out.println("+----+-------------------------+------------+------------+--------------+---------------------------------------------------------------------------------------------+");
+        System.out.println("Note: Only showing incorrect tests ("+passed+" passed).\n");
+        System.out.println("#     file                      iterations   received     expected     status         description");
+        System.out.println("+----+-------------------------+------------+------------+------------+--------------+---------------------------------------------------------------------------------------------+");
 
         List<Test> sortedTests = new ArrayList<>(testResults.keySet());
         Collections.sort(sortedTests, (t,u) -> {
@@ -102,13 +115,27 @@ public class TestSuite {
             if(testValues.containsKey(t)){
                 x=""+testValues.get(t);
             }
-            System.out.println(" "+pad(++i + ".", 5) + pad(t.toString(), 26) + padl(t.expected, 8) + "     " + padl(x, 8) + "     " + pad(""+testResults.get(t), 9) + "      " + t.description);
+            System.out.println(" "+pad(++i + ".", 5) + pad(t.toString(), 26) +" "+ padl(testIts.get(t), 10)+"     " + padl(x, 8) + "     " + padl(t.expected, 8) + "     " + pad(""+testResults.get(t), 9) + "      " + t.description);
+        }
+
+        Scanner s = new Scanner(System.in);
+        System.out.print("\nEnter index to get more details.\n> ");
+
+        int j = s.nextInt();
+        if(j>=1 && j<=sortedTests.size()){
+            try {
+                Main.detailed("tests/"+sortedTests.get(j-1).file);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (DivergeException e) {
+                e.printStackTrace();
+            }
         }
     }
     private static String padl(long x, int l){
         return padl(x+"", l);
     }
-    private static String pad(String s, int l){
+    public static String pad(String s, int l){
         if(s.length()<l)
             return pad(s+" ",l);
         return s;

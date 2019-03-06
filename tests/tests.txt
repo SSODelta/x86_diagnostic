@@ -5,14 +5,19 @@ return_var.c;            47;       Declares an int and returns it.
 simple_branch.c;         58;       Branches on variable equality.
 array_index.c;           39;       Initializes a 4-element integer array and returns its sum.
 array_write.c;           45;       Initializes a 4-element integer array, changes first index and returns its sum.
+array_write_far.c;       65;       Writes to the last position of a 15-element array and returns it.
+array_write_far_i.c;     65;       Same as above but indexes using a variable.
 array_write2.c;          20;       Initializes a 4-element integer array, fills with first element and returns its sum.
+array_write2_small.c;    10;       Same as above but only two elements.
 array_write3.c;           1;       Initializes the array [1,2] and sets the second entry to the first entry and returns it.
-array_write3_alt.c;      67;       Same as above but with {67,87} and other indices.
+array_write3_alt.c;      87;       Same as above but with {67,87} and other indices.
 array_index_loop.c;      39;       Initializes a 4-element integer array and returns its sum using a loop.
 array_bigint.c;      332557;       Initializes a 3-element integer array and returns its value treated as a base 256 bigint.
 insertion_sort1.c;       15;       Sort an 11-element integer array.
 insertion_sort1_alt.c;   15;       The same array but sorted.
 insertion_sort1_eq.c;    20;       The same algorithm but the entire array is 5s.
 insertion_sort2.c;       15;       Sort a 9-element integer array.
+array_minimum0.c;         1;       Compute the minimum of a 3-element integer array.
+array_minimum0_.c;        1;       Compute the minimum of a 2-element integer array.
 array_minimum1.c;         2;       Compute the minimum of an 11-element integer array.
 array_minimum2.c;         5;       Compute the minimum of an 11-element integer array.
