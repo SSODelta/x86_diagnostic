@@ -37,7 +37,7 @@ public class QuadAddress extends Addressable {
         if(r2 == Register.NONE){
             return (imm!=0?imm:"")+"("+r1+")";
         } else if(r1 != Register.NONE){
-            return (imm!=0?imm:"")+"("+r1+","+r2+")";
+            return (imm!=0?imm:"")+"("+r1+","+r2+","+s+")";
         } else {
             return (imm != 0 ? imm : "") + "(," + r2 + ")";
         }
