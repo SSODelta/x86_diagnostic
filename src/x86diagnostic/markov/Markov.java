@@ -37,9 +37,11 @@ public class Markov {
         return o;
     }
 
-    public void print() throws IOException {
-        System.out.println(this);
-        PrintWriter pw = new PrintWriter(name+".csv");
+    public void print(String name) throws IOException {
+        PrintWriter pw2 = new PrintWriter("raw/"+name+".txt");
+        pw2.println(this.toString());
+        pw2.close();
+        PrintWriter pw = new PrintWriter("csv/"+name+".csv");
         pw.println("sep=,");
         List<MarkovInstruction> os = objects();
         for(MarkovInstruction o : os)

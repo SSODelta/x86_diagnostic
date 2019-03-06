@@ -11,18 +11,13 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 public class Computer {
-    public static long computeTest(String file) throws IOException, InterruptedException {
-        Computer c = new Computer((f,m) -> new MarkovComputingVM(new SimpleVM(f,m)),false);
-
-        return c.execute(Parser.compile(new String(Files.readAllBytes(Paths.get("tests/"+file)))),  file.replace(".c",""));
+    public static long computeTest(String file, boolean verbose, long limit) throws IOException, InterruptedException, DivergeException {
+        Computer c = new Computer((f, m) -> new MarkovComputingVM(new SimpleVM(f, m)), verbose);
+        return c.execute(Parser.compile(new String(Files.readAllBytes(Paths.get("tests/" + file)))), file.replace(".c", ""), limit);
     }
-    public static long compute(String cCode) throws IOException, InterruptedException {
-        return compute(Parser.compile(cCode));
-    }
-    public static long compute(Instruction[] instrs) throws IOException {
-        Computer c = new Computer((f,m) -> new MarkovComputingVM(new SimpleVM(f,m)),false);
-
-         return c.execute(instrs, "markov");
+    public static long compute(Configuration conf) throws IOException {
+        Computer c = new Computer((f,m) -> new MarkovComputingVM(new SimpleVM(f,m)),conf.isVerbose());
+         return c.execute(conf.getInstructions(), "markov");
 
     }
 
@@ -36,6 +31,13 @@ public class Computer {
         this.verbose = verbose;
     }
     public long execute(Instruction[] instructions, String markov_out) throws IOException {
+        try {
+            return execute(instructions, markov_out, Long.MAX_VALUE);
+        } catch (DivergeException e) {
+            return 0;
+        }
+    }
+    public long execute(Instruction[] instructions, String markov_out, long limit) throws IOException, DivergeException {
         int i = 0;
         Map<String, Integer> instructionLabels = new HashMap<>();
         SimpleVM.InitialMemory initialMemory = new SimpleVM.InitialMemory();
@@ -63,6 +65,8 @@ public class Computer {
                                "\n-----------------------\n");
         int k=0;
         while(true) {
+            if(k++>limit)
+                throw new DivergeException(limit);
             Instruction next = instructions[(int)vm.load(Register.Type.RIP)];
             Instruction.inc(Register.Type.RIP).apply(vm);
             if (depth == 0 && next.equals(Instruction.ret)) {
@@ -70,8 +74,9 @@ public class Computer {
                 return vm.load(Register.Type.RAX);
             }
             if(verbose) {
-                System.out.println("\n------------------------" +
-                        "\n--   INSTRUCTION #" + (++k) + "  --" +
+                System.out.println(
+                        "\n------------------------" +
+                        "\n--   INSTRUCTION #" + (k) + "  --" +
                         "\n------------------------");
                 System.out.println("Executing: " + next);
             }

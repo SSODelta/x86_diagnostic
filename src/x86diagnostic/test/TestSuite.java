@@ -1,7 +1,7 @@
 package x86diagnostic.test;
 
-import com.sun.org.apache.regexp.internal.RE;
 import x86diagnostic.vm.Computer;
+import x86diagnostic.vm.DivergeException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class TestSuite {
 
-    enum Status { ACCEPT, REJECT, ERROR; }
+    enum Status { ACCEPT, REJECT, ERROR, DIVERGED; }
 
     static class Test implements Comparable<Test> {
         private final String file, description;
@@ -54,38 +54,68 @@ public class TestSuite {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void testAll(boolean verbose) throws IOException {
 
-        System.out.println("------------------------");
-        System.out.println("-- RUNNING TEST SUITE --");
-        System.out.println("------------------------");
+        System.out.println("Running test suite...\n");
 
         List<Test> tests = new ArrayList<>();
-        for(String line : Files.readAllLines(Paths.get("tests/tests.txt"))){
-            if(line.startsWith("#") || line.isEmpty())continue;
+        for (String line : Files.readAllLines(Paths.get("tests/tests.txt"))) {
+            if (line.startsWith("#") || line.isEmpty()) continue;
             tests.add(Test.parse(line));
         }
-        Collections.sort(tests);
 
-        int i=0;
-        for(Test t : tests){
+        Map<Test, Status> testResults = new HashMap<>();
+        Map<Test, Long>   testValues = new HashMap<>();
+        for (Test t : tests) {
             Status status = Status.REJECT;
 
+            long x = -1;
             try {
-                if (Computer.computeTest(t.file) == t.expected) {
+                x = Computer.computeTest(t.file, verbose, 10000);
+                if (x == t.expected) {
                     status = Status.ACCEPT;
                 }
-            } catch (Exception e){
-                e.printStackTrace();
+            } catch (Exception e) {
                 status = Status.ERROR;
+            } catch (DivergeException e) {
+                status = Status.DIVERGED;
             }
-
-            System.out.println(pad(++i+".", 5)+pad(t.toString(),26)+status);
+            if(status!=Status.ERROR && status!=Status.DIVERGED)
+                testValues.put(t, x);
+            testResults.put(t, status);
         }
+        int i = 0;
+        System.out.println("#     file                      expected     received     status         description");
+        System.out.println("+----+-------------------------+------------+------------+--------------+---------------------------------------------------------------------------------------------+");
+
+        List<Test> sortedTests = new ArrayList<>(testResults.keySet());
+        Collections.sort(sortedTests, (t,u) -> {
+            Status st = testResults.get(t), su = testResults.get(u);
+            if(st == su){
+                return t.compareTo(u);
+            } else
+                return -st.compareTo(su);
+        });
+
+        for(Test t : sortedTests){
+            String x = "-";
+            if(testValues.containsKey(t)){
+                x=""+testValues.get(t);
+            }
+            System.out.println(" "+pad(++i + ".", 5) + pad(t.toString(), 26) + padl(t.expected, 8) + "     " + padl(x, 8) + "     " + pad(""+testResults.get(t), 9) + "      " + t.description);
+        }
+    }
+    private static String padl(long x, int l){
+        return padl(x+"", l);
     }
     private static String pad(String s, int l){
         if(s.length()<l)
             return pad(s+" ",l);
+        return s;
+    }
+    private static String padl(String s, int l){
+        if(s.length()<l)
+            return padl(" "+s,l);
         return s;
     }
 }

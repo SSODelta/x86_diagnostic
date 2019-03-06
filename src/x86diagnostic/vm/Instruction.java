@@ -128,15 +128,15 @@ public interface Instruction {
     }
 
     static Instruction shl(int k, Operand dest, DataType type) {
-        return unop(dest, x -> x << k,"shl",type);
+        return unop(dest, x -> x << k,"shl\t$"+k,type);
     }
 
     static Instruction sar(int k, Operand dest, DataType type) {
-        return unop(dest, x -> x >> k,"sar",type);
+        return unop(dest, x -> x >> k,"sar\t$"+k,type);
     }
 
     static Instruction shr(int k, Operand dest, DataType type) {
-        return unop(dest, x -> x >>> k,"shr",type);
+        return unop(dest, x -> x >>> k,"shr\t$"+k,type);
     }
 
     /// SPECIAL ARITHMETIC OPERATIONS ///

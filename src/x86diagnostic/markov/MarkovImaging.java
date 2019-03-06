@@ -2,6 +2,7 @@ package x86diagnostic.markov;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +28,32 @@ public class MarkovImaging {
 
         for(int i=0; i<N; i++)
         for(int j=0; j<N; j++){
-            float x = (float)Math.pow(1-(double)markov.get(mis.get(i), mis.get(j)) / M, 2);
+            float x = (float)Math.pow(1-(double)markov.get(mis.get(i), mis.get(j)) / M, 10);
             img.setRGB(i,j,new Color(1.0f, x,x).getRGB());
         }
 
-        return img;
+        return scale(img, BufferedImage.TYPE_INT_RGB, 400, 400);
+    }
+    /**
+     * scale image
+     *
+     * @param sbi image to scale
+     * @param imageType type of image
+     * @param dWidth width of destination image
+     * @param dHeight height of destination image
+     * @return scaled image
+     */
+    public static BufferedImage scale(BufferedImage sbi, int imageType, int dWidth, int dHeight) {
+        BufferedImage dbi = null;
+        if(sbi != null) {
+            dbi = new BufferedImage(dWidth, dHeight, imageType);
+            Graphics2D g = dbi.createGraphics();
+            double fWidth = (double)dWidth / sbi.getWidth();
+            double fHeight = (double)dHeight / sbi.getHeight();
+            AffineTransform at = AffineTransform.getScaleInstance(fWidth, fHeight);
+            g.drawRenderedImage(sbi, at);
+        }
+        return dbi;
     }
 
     public void output(String file) throws IOException {

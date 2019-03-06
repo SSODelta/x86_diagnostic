@@ -1,0 +1,6 @@
+              read[-4(%rbp)]read[-8(%rbp)]read[99984]   read[99988]   
+read[-4(%rbp)]0             1             0             1             
+read[-8(%rbp)]0             0             1             0             
+read[99984]   1             0             0             0             
+read[99988]   0             0             0             0             
+

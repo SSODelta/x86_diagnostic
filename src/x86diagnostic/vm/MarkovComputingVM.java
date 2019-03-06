@@ -24,8 +24,9 @@ public class MarkovComputingVM implements VirtualMachine {
         //System.out.println("\n------------------------"+
                            //"\n--    MARKOV MATRIX   --"+
                            //"\n------------------------");
-       //markov.print();
-        new MarkovImaging(markov).output("markov/"+markov_out+".png");
+        markov.print(markov_out);
+        if(!markov.objects().isEmpty())
+            new MarkovImaging(markov).output("markov/"+markov_out+".png");
     }
 
     @Override

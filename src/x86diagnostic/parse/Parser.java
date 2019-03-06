@@ -2,8 +2,11 @@ package x86diagnostic.parse;
 
 import x86diagnostic.vm.Instruction;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +38,23 @@ public class Parser {
 
     public static Instruction[] compile(String cCode) throws IOException, InterruptedException {
         Files.write(Paths.get("code.c"), cCode.getBytes());
-        Runtime.getRuntime().exec("g++ -S code.c -fno-asynchronous-unwind-tables -fno-stack-protector").waitFor();
-        String asm = new String(Files.readAllBytes(Paths.get("code.s")));
-        Files.delete(Paths.get("code.c"));
-        Files.delete(Paths.get("code.s"));
-        return parse(asm);
+        Process p = Runtime.getRuntime().exec("g++ -S code.c -fno-asynchronous-unwind-tables -fno-stack-protector -Wdeprecated");
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        p.waitFor();
+
+        try {
+            String asm = new String(Files.readAllBytes(Paths.get("code.s")));
+            Files.delete(Paths.get("code.c"));
+            Files.delete(Paths.get("code.s"));
+            return parse(asm);
+        } catch(NoSuchFileException e){
+            // read any errors from the attempted command
+            String s;
+            while ((s = stdError.readLine()) != null) {
+                System.out.println(s);
+            }
+        }
+        throw new IllegalStateException("compiler error");
     }
 
     public static Instruction[] parse(String data){
